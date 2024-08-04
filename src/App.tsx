@@ -1,12 +1,19 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import { HashRouter, Route, Routes } from "react-router-dom";
+import ProjectDetails from "./components/landingpage";
+import HomePage from "./components/homePage";
 
 function App() {
   return (
-    <div className="App">
-      <h1>Lets start from today</h1>
-    </div>
+    <HashRouter>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<ProjectDetails />}></Route>
+          <Route path="home" element={<HomePage />}></Route>
+        </Routes>
+      </div>
+    </HashRouter>
   );
 }
 
