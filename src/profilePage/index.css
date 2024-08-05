@@ -1,0 +1,29 @@
+.profile-page {
+    padding: 20px;
+  }
+  
+  .profile-page header {
+    margin-bottom: 20px;
+  }
+  
+  .profile-page section {
+    margin-bottom: 20px;
+  }
+  
+  .profile-page ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .profile-page li {
+    margin-bottom: 10px;
+  }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    font-size: 1.5rem; 
+  }
+  

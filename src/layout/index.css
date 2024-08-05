@@ -1,0 +1,11 @@
+.layout {
+  display: flex;
+}
+
+.content {
+  margin-left: 250px; /* Ensure this matches the width of the dashboard */
+  padding: 20px;
+  flex-grow: 1; /* Ensure the content area takes the remaining space */
+  width: calc(100% - 250px); /* Ensure this matches the width of the dashboard */
+  box-sizing: border-box;
+}
