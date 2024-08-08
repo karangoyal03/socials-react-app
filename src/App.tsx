@@ -6,6 +6,7 @@ import Layout from './layout';
 import Users from './userPage';
 import WebSeries from './webSeries';
 import Details from './webSeries/details';
+import Search from './search';
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
           <Route path="/users" element={<Users />} />
           <Route path="/webseries" element={<WebSeries />} />
           <Route path="/details/:id" element={<Details />} />
+          <Route path="/search" element={<Search />} />
         </Route>
       </Routes>
     </Router>
