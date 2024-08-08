@@ -11,6 +11,7 @@ const Dashboard: React.FC = () => {
           <li><Link to="/">Home</Link></li>
           <li><Link to="/profile">Your Profile</Link></li>
           <li><Link to="/users">Login/Register</Link></li>
+          <li><Link to="/webseries">WebSeries</Link></li>
         </ul>
       </nav>
     </div>
