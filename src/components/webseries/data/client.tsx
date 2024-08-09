@@ -1,19 +1,27 @@
-import axios from 'axios';
+import axios from "axios";
+const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
+const SHOW_API = `${REMOTE_SERVER}/api/shows`;
 
-const apiKey = "d6a5c0d6"
-const options = {
-    method: 'GET',
-    url: `http://www.omdbapi.com/?apikey=${apiKey}&t=Game of Thrones&Season=1`
-  };
+export const deleteMovie = async (title: string) => {
+  const response = await axios.delete(`${SHOW_API}/${title}`);
+  return response.data;
+};
 
-async function fetchGenres(): Promise<void> {
-  try {
-    const response = await axios.request(options);
-    console.log(response.data);
-  } catch (error) {
-    console.error(error);
-  }
+export const findAllShows = async() =>{
+  const response = await axios.get(`${SHOW_API}`);
+  return response.data;
 }
 
+export const findShowByTitle = async (title: string) => {
+  const response = await axios.get(`${SHOW_API}/${title}`);
+  return response.data;
+};
+export const createShow = async (title: string, show: any) => {
+  const response = await axios.post(`${SHOW_API}/${title}`, show);
+  return response.data;
+};
 
-export default fetchGenres;
+export const updateShow = async (show: any) => {
+  const response = await axios.put(`${SHOW_API}/${show.title}`, show);
+  return response.data;
+};

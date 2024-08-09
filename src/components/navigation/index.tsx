@@ -1,52 +1,77 @@
-import { Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Offcanvas, Nav, Navbar, Container, Button } from "react-bootstrap";
 
 export default function Navigation() {
   const navigate = useNavigate();
+
   return (
     <div className="wd-account-screen">
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
+      <Navbar bg="light" expand={false}>
+        <Container fluid>
+          <Navbar.Brand as={Link} to="/">
             Socials
-          </Link>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="offcanvasNavbar" />
+          <Navbar.Offcanvas
+            id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel"
+            placement="start"
           >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto">
-              <li className="nav-item">
-                <button
-                  className="nav-link btn"
-                  onClick={() => navigate("/login")}
-                >
-                  Login
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className="nav-link btn"
-                  onClick={() => navigate("/signup")}
-                >
-                  Sign Up
-                </button>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/home">
-                  Back to Home
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title id="offcanvasNavbarLabel">
+                Socials
+              </Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+              <Nav className="justify-content-start flex-grow-1 pe-3">
+                <Nav.Item>
+                  <Button
+                    variant="link"
+                    className="nav-link"
+                    onClick={() => navigate("/login")}
+                  >
+                    Login
+                  </Button>
+                </Nav.Item>
+                <Nav.Item>
+                  <Button
+                    variant="link"
+                    className="nav-link"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Sign Up
+                  </Button>
+                </Nav.Item>
+                <Nav.Item>
+                  <Button
+                    variant="link"
+                    className="nav-link"
+                    onClick={() => navigate("/")}
+                  >
+                    Sign Out
+                  </Button>
+                </Nav.Item>
+                <Nav.Item>
+                  <Button
+                    variant="link"
+                    className="nav-link"
+                    onClick={() => navigate("/movies")}
+                  >
+                    Movies
+                  </Button>
+                </Nav.Item>
+                
+                <Nav.Item>
+                  <Nav.Link as={Link} to="/home">
+                    Back to Home
+                  </Nav.Link>
+                </Nav.Item>
+              </Nav>
+            </Offcanvas.Body>
+          </Navbar.Offcanvas>
+        </Container>
+      </Navbar>
     </div>
   );
 }
