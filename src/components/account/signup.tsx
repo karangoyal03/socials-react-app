@@ -1,27 +1,32 @@
-import React, { useState, FormEvent } from "react";
+import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import Navigation from "../navigation";
 import { useDispatch } from "react-redux";
 import * as client from "./client";
 import { setCurrentUser } from "./reducer";
+
 const SignUp: React.FC = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [role, setRole] = useState<string>("user");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const handleSubmit = async () => {
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     try {
       const user = {
         firstName,
         lastName,
+        username,
         email,
         role,
-        password
+        password,
       };
       const currentUser = await client.signup(user);
       dispatch(setCurrentUser(currentUser));
@@ -33,7 +38,6 @@ const SignUp: React.FC = () => {
 
   return (
     <>
-      <Navigation />
       {error && <div className="wd-error alert alert-danger">{error}</div>}
       <Container className="vh-100">
         <Row className="h-100 justify-content-center align-items-center">
@@ -56,6 +60,15 @@ const SignUp: React.FC = () => {
                   placeholder="Last name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formEmail">

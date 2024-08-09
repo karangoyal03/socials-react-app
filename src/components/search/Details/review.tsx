@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Table } from "react-bootstrap";
+import { Table, Button } from "react-bootstrap";
+import { FaEdit, FaTrashAlt } from "react-icons/fa"; // Importing icons for update and delete
+import * as client from "./client";
 
 interface Review {
   id: string;
@@ -47,13 +49,35 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
 
   useEffect(() => {
     const fetchedReviews = generateRandomReviews();
-    // Sort reviews by date (newest first)
     fetchedReviews.sort(
       (a: Review, b: Review) =>
         new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     setReviews(fetchedReviews);
   }, [movieTitle]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const updatedReviews = await client.deleteReview(id);
+      setReviews(updatedReviews);
+    } catch (error) {
+      console.error("Failed to delete review:", error);
+    }
+  };
+
+  const handleUpdate = async (id: string) => {
+    const updatedComment = prompt("Enter new comment:");
+    if (updatedComment) {
+      try {
+        const updatedReview = await client.updateReview(id, {
+          comment: updatedComment,
+        });
+        setReviews(updatedReview);
+      } catch (error) {
+        console.error("Failed to update review:", error);
+      }
+    }
+  };
 
   return (
     <div className="mt-4">
@@ -66,6 +90,7 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
               <th>Rating</th>
               <th>Comment</th>
               <th>Date</th>
+              <th>Actions</th> {/* Added actions column */}
             </tr>
           </thead>
           <tbody>
@@ -90,6 +115,22 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
                 </td>
                 <td>{review.comment}</td>
                 <td>{new Date(review.date).toLocaleDateString()}</td>
+                <td>
+                  <Button
+                    variant="link"
+                    className="p-0 text-primary"
+                    onClick={() => handleUpdate(review.id)}
+                  >
+                    <FaEdit />
+                  </Button>{" "}
+                  <Button
+                    variant="link"
+                    className="p-0 text-danger"
+                    onClick={() => handleDelete(review.id)}
+                  >
+                    <FaTrashAlt />
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
