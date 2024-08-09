@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button } from "react-bootstrap";
-import { FaEdit, FaTrashAlt } from "react-icons/fa"; // Importing icons for update and delete
+import { Table, Button, Modal, Form } from "react-bootstrap";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import * as client from "./client";
+import { useSelector } from "react-redux";
 
 interface Review {
-  id: string;
+  _id: string;
   username: string;
   rating: number;
   comment: string;
@@ -15,69 +16,85 @@ interface ReviewProps {
   movieTitle: string;
 }
 
-const generateRandomId = (): string => {
-  return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-};
-
-const generateRandomReviews = (): Review[] => {
-  const users = ["Alice", "Bob", "Charlie", "Diana", "Edward"];
-  const comments = [
-    "Amazing movie!",
-    "Loved the plot and characters.",
-    "It was okay, nothing special.",
-    "Didn't enjoy it much.",
-    "Best movie of the year!",
-  ];
-
-  const reviews = [];
-  for (let i = 0; i < 5; i++) {
-    reviews.push({
-      id: generateRandomId(),
-      username: users[Math.floor(Math.random() * users.length)],
-      rating: Math.floor(Math.random() * 10) + 1,
-      comment: comments[Math.floor(Math.random() * comments.length)],
-      date: new Date(
-        Date.now() - Math.floor(Math.random() * 10000000000)
-      ).toISOString(),
-    });
-  }
-  return reviews;
-};
-
 const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
+  const account = useSelector((state: any) => state.account);
+  const currentUser = account ? account.currentUser : null;
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [updatedComment, setUpdatedComment] = useState<string>("");
+  const [updatedRating, setUpdatedRating] = useState<number>(0);
 
   useEffect(() => {
-    const fetchedReviews = generateRandomReviews();
-    fetchedReviews.sort(
-      (a: Review, b: Review) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    setReviews(fetchedReviews);
+    const fetchReviews = async () => {
+      try {
+        console.log(movieTitle);
+        const fetchedReviews = await client.findReviewByTitle(movieTitle);
+        console.log(fetchedReviews)
+        fetchedReviews.sort(
+          (a: Review, b: Review) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        setReviews(fetchedReviews);
+      } catch (error) {
+        console.error("Failed to fetch reviews:", error);
+      }
+    };
+
+    fetchReviews();
   }, [movieTitle]);
 
   const handleDelete = async (id: string) => {
     try {
-      const updatedReviews = await client.deleteReview(id);
-      setReviews(updatedReviews);
+      await client.deleteReview(id);
+      setReviews(reviews.filter((review) => review._id !== id));
     } catch (error) {
       console.error("Failed to delete review:", error);
     }
   };
 
-  const handleUpdate = async (id: string) => {
-    const updatedComment = prompt("Enter new comment:");
-    if (updatedComment) {
+  const handleUpdate = (review: Review) => {
+    setSelectedReview(review);
+    setUpdatedComment(review.comment);
+    setUpdatedRating(review.rating);
+    setShowModal(true);
+  };
+
+  const handleSaveUpdate = async () => {
+    if (selectedReview) {
       try {
-        const updatedReview = await client.updateReview(id, {
+        await client.updateReview(selectedReview._id, {
+        ...selectedReview,
           comment: updatedComment,
+          rating: updatedRating,
         });
-        setReviews(updatedReview);
+        setReviews(
+          reviews.map((review) =>
+            review._id === selectedReview._id
+              ? { ...review, comment: updatedComment, rating: updatedRating }
+              : review
+          )
+        );
+        setShowModal(false);
       } catch (error) {
         console.error("Failed to update review:", error);
       }
     }
   };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedReview(null);
+    setUpdatedComment("");
+    setUpdatedRating(0);
+  };
+
+  const canDelete =
+    currentUser &&
+    (currentUser.role === "ADMIN" || currentUser.role === "BLOGGER");
+  const canEdit =
+    currentUser &&
+    (currentUser.role === "ADMIN" || currentUser.role === "USER");
 
   return (
     <div className="mt-4">
@@ -90,12 +107,12 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
               <th>Rating</th>
               <th>Comment</th>
               <th>Date</th>
-              <th>Actions</th> {/* Added actions column */}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {reviews.map((review) => (
-              <tr key={review.id}>
+              <tr key={review._id}>
                 <td>{review.username}</td>
                 <td>
                   {Array(review.rating)
@@ -116,20 +133,24 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
                 <td>{review.comment}</td>
                 <td>{new Date(review.date).toLocaleDateString()}</td>
                 <td>
-                  <Button
-                    variant="link"
-                    className="p-0 text-primary"
-                    onClick={() => handleUpdate(review.id)}
-                  >
-                    <FaEdit />
-                  </Button>{" "}
-                  <Button
-                    variant="link"
-                    className="p-0 text-danger"
-                    onClick={() => handleDelete(review.id)}
-                  >
-                    <FaTrashAlt />
-                  </Button>
+                  {canEdit && (
+                    <Button
+                      variant="link"
+                      className="p-0 text-primary"
+                      onClick={() => handleUpdate(review)}
+                    >
+                      <FaEdit />
+                    </Button>
+                  )}{" "}
+                  {canDelete && (
+                    <Button
+                      variant="link"
+                      className="p-0 text-danger"
+                      onClick={() => handleDelete(review._id)}
+                    >
+                      <FaTrashAlt />
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -138,6 +159,49 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
       ) : (
         <p>No reviews available for this movie.</p>
       )}
+
+      {/* Modal for updating the review */}
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Review</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formComment">
+              <Form.Label>Comment</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={updatedComment}
+                onChange={(e) => setUpdatedComment(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="formRating" className="mt-3">
+              <Form.Label>Rating</Form.Label>
+              <Form.Control
+                as="select"
+                value={updatedRating}
+                onChange={(e) => setUpdatedRating(Number(e.target.value))}
+              >
+                <option value={0}>Select Rating</option>
+                {[...Array(10)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} Star{i + 1 > 1 ? "s" : ""}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSaveUpdate}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

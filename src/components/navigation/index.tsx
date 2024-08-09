@@ -56,6 +56,15 @@ export default function Navigation() {
                   <Button
                     variant="link"
                     className="nav-link"
+                    onClick={() => navigate("/profile")}
+                  >
+                    Profiles
+                  </Button>
+                </Nav.Item>
+                <Nav.Item>
+                  <Button
+                    variant="link"
+                    className="nav-link"
                     onClick={() => navigate("/movies")}
                   >
                     Movies

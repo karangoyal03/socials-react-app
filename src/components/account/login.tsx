@@ -6,21 +6,22 @@ import { useDispatch } from "react-redux";
 import { setCurrentUser } from "./reducer";
 import * as client from "./client";
 const Login: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event :any) => {
     try {
+      event.preventDefault();
       const credentials = {
-        email,
+        username,
         password,
       };
       const currentUser = await client.signin(credentials);
       dispatch(setCurrentUser(currentUser));
-      navigate("/home");
+      navigate("/profile");
     } catch (err: any) {
       setError(err.response.data.message);
     }
@@ -28,7 +29,6 @@ const Login: React.FC = () => {
 
   return (
     <>
-      <Navigation />
       <Container className="vh-100">
         {error && <div className="wd-error alert alert-danger">{error}</div>}
         <Row className="h-100 justify-content-center align-items-center">
@@ -36,12 +36,12 @@ const Login: React.FC = () => {
             <Form onSubmit={handleSubmit} className="p-4 border rounded shadow">
               <h3 className="text-center mb-4">Sign In</h3>
               <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Label>Email address</Form.Label>
+                <Form.Label>Username</Form.Label>
                 <Form.Control
-                  type="email"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="Enter username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formBasicPassword">

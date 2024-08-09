@@ -19,12 +19,14 @@ const Details = () => {
           title
       );
       const data = await res.json();
+      console.log(data,"data");
       setSearchResult(data);
     } catch (error) {
       toast.error("Internal Server Error");
     }
   };
-
+  console.log(title)
+  console.log(searchResult.Title,"searchResult");
   useEffect(() => {
     getResults();
   }, [title]);
@@ -97,7 +99,7 @@ const Details = () => {
               </div>
             </Card.Body>
           </Card>
-          <Reviews movieTitle={title || ""} />
+          <Reviews movieTitle={searchResult.Title || ""} />
         </Col>
       </Row>
     </Container>

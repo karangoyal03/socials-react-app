@@ -6,7 +6,6 @@ export default function Account() {
 
   return (
     <div >
-      <Navigation/>
     </div>
   );
 }

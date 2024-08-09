@@ -10,7 +10,7 @@ const SignUp: React.FC = () => {
   const [lastName, setLastName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [role, setRole] = useState<string>("user");
+  const [role, setRole] = useState<string>("USER");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
@@ -18,6 +18,7 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     try {
+      event.preventDefault();
       const user = {
         firstName,
         lastName,
@@ -26,9 +27,10 @@ const SignUp: React.FC = () => {
         role,
         password,
       };
+      console.log(role +"hi")
       const currentUser = await client.signup(user);
       dispatch(setCurrentUser(currentUser));
-      navigate("/home");
+      navigate("/login");
     } catch (error: any) {
       setError(error.message);
     }
@@ -94,9 +96,9 @@ const SignUp: React.FC = () => {
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                 >
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
-                  <option value="blogger">Blogger</option>
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="USER">USER</option>
+                  <option value="BLOGGER">BLOGGER</option>
                 </Form.Control>
               </Form.Group>
               <div className="d-grid">
