@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import Navigation from "../navigation";
 import { useDispatch } from "react-redux";
 import * as client from "./client";
 import { setCurrentUser } from "./reducer";
@@ -18,7 +17,6 @@ const SignUp: React.FC = () => {
   const dispatch = useDispatch();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
     try {
       const user = {
         firstName,
@@ -32,7 +30,7 @@ const SignUp: React.FC = () => {
       dispatch(setCurrentUser(currentUser));
       navigate("/home");
     } catch (error: any) {
-      setError(error.response.data.message);
+      setError(error.message);
     }
   };
 
