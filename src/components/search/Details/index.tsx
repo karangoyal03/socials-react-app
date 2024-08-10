@@ -26,7 +26,7 @@ const Details = () => {
     }
   };
   console.log(title)
-  console.log(searchResult.Title,"searchResult");
+  console.log(searchResult,"searchResult");
   useEffect(() => {
     getResults();
   }, [title]);

@@ -17,16 +17,22 @@ export const findReviewByUserId = async (userId: string) => {
   return response.data;
 };
 
-
 export const findReviewByTitle = async (title: string) => {
-    try {
-      const response = await axios.get(`${REVIEW_API}/${encodeURIComponent(title)}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Failed to fetch review for title: ${title}`, error);
-      throw new Error('Could not fetch the review. Please try again later.');
-    }
-  };
+  try {
+    const response = await axios.get(
+      `${REVIEW_API}/title/${encodeURIComponent(title)}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch review for title: ${title}`, error);
+    throw new Error("Could not fetch the review. Please try again later.");
+  }
+};
+
+export const findReviewByMovieId = async (movieId: string) => {
+  const response = await axios.get(`${REVIEW_API}/movie/${movieId}`);
+  return response.data;
+};
 export const createReview = async (review: any) => {
   const response = await axios.post(`${REVIEW_API}`, review);
   return response.data;

@@ -10,6 +10,7 @@ interface Review {
   rating: number;
   comment: string;
   date: string;
+  title :string;
 }
 
 interface ReviewProps {
@@ -28,21 +29,23 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        console.log(movieTitle);
-        const fetchedReviews = await client.findReviewByTitle(movieTitle);
-        console.log(fetchedReviews)
-        fetchedReviews.sort(
+        const fetchedReviews = await client.findAllReviews();
+        const filteredReviews = fetchedReviews.filter(
+          (review: Review) => review.title === movieTitle
+        );
+        filteredReviews.sort(
           (a: Review, b: Review) =>
             new Date(b.date).getTime() - new Date(a.date).getTime()
         );
-        setReviews(fetchedReviews);
+        setReviews(filteredReviews);
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       }
     };
-
+  
     fetchReviews();
   }, [movieTitle]);
+  
 
   const handleDelete = async (id: string) => {
     try {
