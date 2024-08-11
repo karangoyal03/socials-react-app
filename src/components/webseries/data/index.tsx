@@ -117,9 +117,12 @@ const WebSeries: React.FC = () => {
     }
   };
 
+  const axiosWithCredentials = axios.create({ withCredentials: false });
+ 
+
   const handleSearch = async () => {
     try {
-      const res = await axios.get(
+      const res = await axiosWithCredentials.get(
         `https://www.omdbapi.com/?apikey=${process.env.REACT_APP_API_KEY}&t=${searchQuery}`
       );
       const data = await res.data;

@@ -67,7 +67,7 @@ export default function Navigation() {
                     className="nav-link"
                     onClick={() => navigate("/profile")}
                   >
-                    Profiles
+                    My Profile
                   </Button>
                 </Nav.Item>
                 <Nav.Item>
