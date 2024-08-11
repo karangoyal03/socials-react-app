@@ -70,7 +70,15 @@ export default function Navigation() {
                     Movies
                   </Button>
                 </Nav.Item>
-                
+                <Nav.Item>
+                  <Button
+                    variant="link"
+                    className="nav-link"
+                    onClick={() => navigate("/allprofiles")}
+                  >
+                    All Profiles
+                  </Button>
+                </Nav.Item>
                 <Nav.Item>
                   <Nav.Link as={Link} to="/home">
                     Back to Home

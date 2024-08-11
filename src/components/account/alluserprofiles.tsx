@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card, Spinner, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Spinner,
+  Alert,
+  Button,
+} from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import * as client from "./client";
 
 interface User {
@@ -14,14 +23,16 @@ interface User {
 }
 
 export default function AllUserProfiles() {
-  const [users, setUsers] = useState<User[]>([]); // Explicitly type users as an array of User objects
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const currentUser = useSelector((state: any) => state.account?.currentUser);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data: User[] = await client.getAllUsers(); // Type the response as an array of User objects
+        const data: User[] = await client.getAllUsers();
         setUsers(data);
       } catch (error) {
         setError("Failed to load users.");
@@ -32,6 +43,16 @@ export default function AllUserProfiles() {
 
     fetchUsers();
   }, []);
+
+  const handleFollow = (userId: number) => {
+    // Add logic to follow the user
+    console.log(`Follow user with ID: ${userId}`);
+  };
+
+  const handleUnfollow = (userId: number) => {
+    // Add logic to unfollow the user
+    console.log(`Unfollow user with ID: ${userId}`);
+  };
 
   if (loading) {
     return (
@@ -74,6 +95,22 @@ export default function AllUserProfiles() {
                     <p>
                       <strong>Role:</strong> {user.role}
                     </p>
+                    {currentUser?.role === "USER" && (
+                      <div className="d-flex justify-content-between">
+                        <Button
+                          variant="primary"
+                          onClick={() => handleFollow(user.id)}
+                        >
+                          Follow
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => handleUnfollow(user.id)}
+                        >
+                          Unfollow
+                        </Button>
+                      </div>
+                    )}
                   </Col>
                 </Row>
               </Card.Body>

@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Container, Card, Row, Col, Alert, Table } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Row,
+  Col,
+  Alert,
+  Table,
+  Button,
+  Modal,
+  Form,
+} from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import * as client from "./client";
 
@@ -8,6 +18,12 @@ export default function Profile() {
   const account = useSelector((state: any) => state.account);
   const currentUser = account ? account.currentUser : null;
   const [reviews, setReviews] = useState<any[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [updatedUser, setUpdatedUser] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -25,6 +41,38 @@ export default function Profile() {
 
     fetchReviews();
   }, [currentUser]);
+
+  const handleShowModal = () => {
+    setUpdatedUser({
+      firstName: currentUser.firstName,
+      lastName: currentUser.lastName,
+      email: currentUser.email,
+    });
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUpdatedUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      await client.updateUser(currentUser.loginId, updatedUser);
+      handleCloseModal();
+      // Optionally, refresh the profile data after the update
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  };
 
   return (
     <Container className="mt-5">
@@ -51,6 +99,9 @@ export default function Profile() {
                   <p>
                     <strong>Role:</strong> {currentUser.role}
                   </p>
+                  <Button variant="primary" onClick={handleShowModal}>
+                    Update Profile
+                  </Button>
                 </Col>
               </Row>
             </Card.Body>
@@ -85,6 +136,55 @@ export default function Profile() {
           ) : (
             <Alert variant="info">You have not posted any reviews yet.</Alert>
           )}
+
+          {/* Update Profile Modal */}
+          <Modal show={showModal} onHide={handleCloseModal} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>Update Profile</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Form>
+                <Form.Group controlId="formFirstName">
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="firstName"
+                    value={updatedUser.firstName}
+                    onChange={handleInputChange}
+                    placeholder="Enter your first name"
+                  />
+                </Form.Group>
+                <Form.Group controlId="formLastName" className="mt-3">
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="lastName"
+                    value={updatedUser.lastName}
+                    onChange={handleInputChange}
+                    placeholder="Enter your last name"
+                  />
+                </Form.Group>
+                <Form.Group controlId="formEmail" className="mt-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={updatedUser.email}
+                    onChange={handleInputChange}
+                    placeholder="Enter your email"
+                  />
+                </Form.Group>
+              </Form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>
+                Close
+              </Button>
+              <Button variant="primary" onClick={handleSaveChanges}>
+                Save Changes
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </>
       ) : (
         <Alert variant="danger">User is not yet logged in.</Alert>

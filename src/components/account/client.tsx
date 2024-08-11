@@ -28,6 +28,11 @@ export const signout = async () => {
   return response.data;
 };
 
+export const updateUser = async(userId: String, user:any) =>{
+  const response = await axios.put(`${USER_API}/${userId}`,user)
+  return response.data;
+}
+
 export const findReviewsByUserId = async (userId: String) => {
   const response = await axios.get(`${REVIEW_API}/${userId}`);
   return response.data;

@@ -24,6 +24,18 @@ interface TvShow {
   Poster: string;
   Title: string;
   original_name: string;
+  Year?: string;
+  Rated?: string;
+  Released?: string;
+  Runtime?: string;
+  Genre?: string;
+  Director?: string;
+  Writer?: string;
+  Actors?: string;
+  Language?: string;
+  Country?: string;
+  Awards?: string;
+  totalSeasons?: string;
 }
 
 interface Review {
@@ -43,6 +55,8 @@ const WebSeries: React.FC = () => {
   const [rating, setRating] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchError, setSearchError] = useState<string>("");
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [newShow, setNewShow] = useState<Partial<TvShow>>({});
 
   const navigate = useNavigate();
 
@@ -52,6 +66,10 @@ const WebSeries: React.FC = () => {
   const canPostReview =
     currentUser &&
     (currentUser.role === "USER" || currentUser.role === "ADMIN");
+
+  const canCreateShow =
+    currentUser &&
+    (currentUser.role === "ADMIN" || currentUser.role === "BLOGGER");
 
   const fetchShows = async () => {
     const shows = await client.findAllShows();
@@ -122,6 +140,28 @@ const WebSeries: React.FC = () => {
     }
   };
 
+  const handleCreateShow = async () => {
+    if (newShow.Title) {
+      try {
+        await client.createShow(newShow);
+        setShowCreateModal(false);
+        fetchShows();
+      } catch (error) {
+        console.error("Failed to create show:", error);
+      }
+    }
+  };
+
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.target;
+    setNewShow((prevShow) => ({
+      ...prevShow,
+      [name]: value,
+    }));
+  };
+
   return (
     <Container className="my-5">
       {currentUser === null && (
@@ -141,10 +181,18 @@ const WebSeries: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <Button variant="primary" id="button-search" onClick={handleSearch}>
-          Search
-        </Button>
+        <div className="ml-2 d-flex">
+          <Button variant="primary" id="button-search" onClick={handleSearch} className="mr-2">
+            Search
+          </Button>
+          {canCreateShow && (
+            <Button variant="success" onClick={() => setShowCreateModal(true)}>
+              Create Show
+            </Button>
+          )}
+        </div>
       </InputGroup>
+
       {searchError && <Alert variant="danger">{searchError}</Alert>}
 
       <Row>
@@ -168,7 +216,7 @@ const WebSeries: React.FC = () => {
                     : "Plot not available"}
                 </Card.Text>
 
-                <div className="mt-auto">
+                <div className="mt-auto d-flex flex-column">
                   <Button
                     variant="primary"
                     className="w-100 mb-2"
@@ -191,6 +239,7 @@ const WebSeries: React.FC = () => {
         ))}
       </Row>
 
+      {/* Review Modal */}
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Post Review for {selectedShow?.name}</Modal.Title>
@@ -230,6 +279,153 @@ const WebSeries: React.FC = () => {
           </Button>
           <Button variant="primary" onClick={handleSaveReview}>
             Save Review
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Create Show Modal */}
+      <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Create a New Show</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="createShowForm.Title">
+              <Form.Label>Title</Form.Label>
+              <Form.Control
+                type="text"
+                name="Title"
+                value={newShow.Title || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Year" className="mt-3">
+              <Form.Label>Year</Form.Label>
+              <Form.Control
+                type="text"
+                name="Year"
+                value={newShow.Year || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Rated" className="mt-3">
+              <Form.Label>Rated</Form.Label>
+              <Form.Control
+                type="text"
+                name="Rated"
+                value={newShow.Rated || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Released" className="mt-3">
+              <Form.Label>Released</Form.Label>
+              <Form.Control
+                type="text"
+                name="Released"
+                value={newShow.Released || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Runtime" className="mt-3">
+              <Form.Label>Runtime</Form.Label>
+              <Form.Control
+                type="text"
+                name="Runtime"
+                value={newShow.Runtime || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Genre" className="mt-3">
+              <Form.Label>Genre</Form.Label>
+              <Form.Control
+                type="text"
+                name="Genre"
+                value={newShow.Genre || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Director" className="mt-3">
+              <Form.Label>Director</Form.Label>
+              <Form.Control
+                type="text"
+                name="Director"
+                value={newShow.Director || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Writer" className="mt-3">
+              <Form.Label>Writer</Form.Label>
+              <Form.Control
+                type="text"
+                name="Writer"
+                value={newShow.Writer || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Actors" className="mt-3">
+              <Form.Label>Actors</Form.Label>
+              <Form.Control
+                type="text"
+                name="Actors"
+                value={newShow.Actors || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Plot" className="mt-3">
+              <Form.Label>Plot</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="Plot"
+                value={newShow.Plot || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Language" className="mt-3">
+              <Form.Label>Language</Form.Label>
+              <Form.Control
+                type="text"
+                name="Language"
+                value={newShow.Language || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Country" className="mt-3">
+              <Form.Label>Country</Form.Label>
+              <Form.Control
+                type="text"
+                name="Country"
+                value={newShow.Country || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.Awards" className="mt-3">
+              <Form.Label>Awards</Form.Label>
+              <Form.Control
+                type="text"
+                name="Awards"
+                value={newShow.Awards || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="createShowForm.totalSeasons" className="mt-3">
+              <Form.Label>Total Seasons</Form.Label>
+              <Form.Control
+                type="text"
+                name="totalSeasons"
+                value={newShow.totalSeasons || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleCreateShow}>
+            Save Show
           </Button>
         </Modal.Footer>
       </Modal>

@@ -22,8 +22,8 @@ export const findShowByTitle = async (title: string) => {
   const response = await axios.get(`${SHOW_API}/${title}`);
   return response.data;
 };
-export const createShow = async (title: string, show: any) => {
-  const response = await axios.post(`${SHOW_API}/${title}`, show);
+export const createShow = async ( show: any) => {
+  const response = await axios.post(`${SHOW_API}`, show);
   return response.data;
 };
 
