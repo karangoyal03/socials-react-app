@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Table, Button, Modal, Form } from "react-bootstrap";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import * as client from "./client";
-import { useSelector } from "react-redux";
+import { UserContext } from "./../../context/userContext"; // Import UserContext
 
 interface Review {
   _id: string;
@@ -10,7 +10,7 @@ interface Review {
   rating: number;
   comment: string;
   date: string;
-  title :string;
+  title: string;
 }
 
 interface ReviewProps {
@@ -18,8 +18,7 @@ interface ReviewProps {
 }
 
 const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
-  const account = useSelector((state: any) => state.account);
-  const currentUser = account ? account.currentUser : null;
+  const { user: currentUser } = useContext(UserContext); // Use UserContext to get the current user
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -42,10 +41,9 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
         console.error("Failed to fetch reviews:", error);
       }
     };
-  
+
     fetchReviews();
   }, [movieTitle]);
-  
 
   const handleDelete = async (id: string) => {
     try {
@@ -67,7 +65,7 @@ const Reviews: React.FC<ReviewProps> = ({ movieTitle }) => {
     if (selectedReview) {
       try {
         await client.updateReview(selectedReview._id, {
-        ...selectedReview,
+          ...selectedReview,
           comment: updatedComment,
           rating: updatedRating,
         });

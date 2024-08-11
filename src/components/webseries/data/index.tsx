@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import * as client from "./client";
@@ -14,7 +14,7 @@ import {
   InputGroup,
   FormControl,
 } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { UserContext } from "./../../context/userContext"; // Import UserContext
 import "./webseries.css";
 
 interface TvShow {
@@ -48,6 +48,7 @@ interface Review {
 }
 
 const WebSeries: React.FC = () => {
+  const { user: currentUser } = useContext(UserContext); // Use UserContext to get the current user
   const [shows, setShows] = useState<TvShow[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedShow, setSelectedShow] = useState<TvShow | null>(null);
@@ -59,10 +60,6 @@ const WebSeries: React.FC = () => {
   const [newShow, setNewShow] = useState<Partial<TvShow>>({});
 
   const navigate = useNavigate();
-
-  const account = useSelector((state: any) => state.account);
-  const currentUser = account ? account.currentUser : null;
-
 
   const canPostReview =
     currentUser &&
@@ -86,8 +83,9 @@ const WebSeries: React.FC = () => {
   };
 
   const handleReview = (show: TvShow) => {
-    if(currentUser ===null){
-      navigate("/login")
+    if (currentUser === null) {
+      navigate("/login");
+      return;
     }
     if (canPostReview) {
       setSelectedShow(show);
@@ -186,7 +184,12 @@ const WebSeries: React.FC = () => {
           onKeyDown={handleKeyDown}
         />
         <div className="ml-2 d-flex">
-          <Button variant="primary" id="button-search" onClick={handleSearch} className="mr-2">
+          <Button
+            variant="primary"
+            id="button-search"
+            onClick={handleSearch}
+            className="mr-2"
+          >
             Search
           </Button>
           {canCreateShow && (
@@ -204,11 +207,7 @@ const WebSeries: React.FC = () => {
           <Col key={show.id} sm={12} md={6} lg={4} className="mb-4">
             <Card className="h-100 shadow-sm">
               <div className="image-container">
-                <Card.Img
-                  variant="top"
-                  src={show.Poster}
-                  className="card-img"
-                />
+                <Card.Img variant="top" src={show.Poster} className="card-img" />
               </div>
               <Card.Body className="d-flex flex-column">
                 <Card.Title className="text-center">{show.name}</Card.Title>
@@ -287,7 +286,11 @@ const WebSeries: React.FC = () => {
       </Modal>
 
       {/* Create Show Modal */}
-      <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered>
+      <Modal
+        show={showCreateModal}
+        onHide={() => setShowCreateModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Create a New Show</Modal.Title>
         </Modal.Header>
@@ -424,7 +427,10 @@ const WebSeries: React.FC = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowCreateModal(false)}
+          >
             Close
           </Button>
           <Button variant="primary" onClick={handleCreateShow}>

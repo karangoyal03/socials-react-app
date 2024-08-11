@@ -13,9 +13,14 @@ import Navigation from "./components/navigation";
 import WebSeries from "./components/webseries/data";
 import Profile from "./components/account/profile";
 import AllUserProfiles from "./components/account/alluserprofiles";
+import axios from "axios";
+import { UserProvider } from "./components/context/userContext";
+
 function App() {
+  axios.defaults.withCredentials = true;
   return (
     <BrowserRouter>
+      <UserProvider>
       <Provider store={store}>
         <div className="App">
           <Navigation />
@@ -32,6 +37,7 @@ function App() {
           </Routes>
         </div>
       </Provider>
+      </UserProvider>
     </BrowserRouter>
   );
 }

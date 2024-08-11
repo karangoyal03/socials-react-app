@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState, useContext } from "react";
 import {
   Container,
   Card,
@@ -13,12 +12,10 @@ import {
 } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import * as client from "./client";
-import { setCurrentUser } from "./reducer";
+import { UserContext } from "./../context/userContext"; // Import UserContext
 
 export default function Profile() {
-  const dispatch = useDispatch();
-  const account = useSelector((state: any) => state.account);
-  const currentUser = account ? account.currentUser : null;
+  const { user: currentUser, setUser } = useContext(UserContext); // Use UserContext
   const [reviews, setReviews] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({
@@ -26,6 +23,16 @@ export default function Profile() {
     lastName: "",
     email: "",
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      setUpdatedUser({
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        email: currentUser.email,
+      });
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -45,11 +52,6 @@ export default function Profile() {
   }, [currentUser]);
 
   const handleShowModal = () => {
-    setUpdatedUser({
-      firstName: currentUser.firstName,
-      lastName: currentUser.lastName,
-      email: currentUser.email,
-    });
     setShowModal(true);
   };
 
@@ -68,14 +70,12 @@ export default function Profile() {
   const handleSaveChanges = async () => {
     try {
       await client.updateUser(currentUser.loginId, updatedUser);
-      // Update the Redux state with the new user information
-      const updatedCurrentUser = {
+      setUser({
         ...currentUser,
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         email: updatedUser.email,
-      };
-      dispatch(setCurrentUser(updatedCurrentUser)); // Use setCurrentUser action
+      });
       handleCloseModal();
     } catch (error) {
       console.error("Failed to update user:", error);
@@ -135,7 +135,7 @@ export default function Profile() {
                         {currentUser.followers.map((follower: string, index: number) => (
                           <tr key={index}>
                             <td>{index + 1}</td>
-                            <td>{follower}</td> {/* Assuming follower is a username */}
+                            <td>{follower}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -158,7 +158,7 @@ export default function Profile() {
                         {currentUser.following.map((followedUser: string, index: number) => (
                           <tr key={index}>
                             <td>{index + 1}</td>
-                            <td>{followedUser}</td> {/* Assuming followedUser is a username */}
+                            <td>{followedUser}</td>
                           </tr>
                         ))}
                       </tbody>

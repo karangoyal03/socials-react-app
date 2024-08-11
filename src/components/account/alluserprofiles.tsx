@@ -1,15 +1,8 @@
-import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-} from "react-bootstrap";
+import React, { useEffect, useState, useContext } from "react";
+import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { UserContext } from "./../context/userContext"; // Import UserContext with the correct type
 import * as client from "./client";
-
 interface User {
   id: number;
   _id: string;
@@ -23,24 +16,35 @@ interface User {
   followers: string[]; // Array of loginIds who follow this user
 }
 
+interface UserContextType {
+  user: User | null;
+}
+
 export default function AllUserProfiles() {
+  const context = useContext(UserContext);
+
+  if (!context) {
+    throw new Error("UserContext must be used within a UserProvider");
+  }
+
+  const { user: currentUser } = context; // Now TypeScript knows 'user' exists on context
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const currentUser = useSelector((state: any) => state.account?.currentUser);
+  const fetchUsers = async () => {
+    try {
+      const data: User[] = await client.getAllUsers();
+      setUsers(data);
+    } catch (error) {
+      setError("Failed to load users.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const data: User[] = await client.getAllUsers();
-        setUsers(data);
-      } catch (error) {
-        setError("Failed to load users.");
-      } finally {
-        setLoading(false);
-      }
-    };
+ 
     fetchUsers();
   }, []);
 
@@ -52,6 +56,7 @@ export default function AllUserProfiles() {
 
     try {
       await client.followUser(currentUser._id, _id);
+      await fetchUsers();
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === _id
@@ -70,8 +75,10 @@ export default function AllUserProfiles() {
       return;
     }
 
+
     try {
       await client.unfollowUser(currentUser._id, _id);
+      await fetchUsers();
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === _id
@@ -92,7 +99,9 @@ export default function AllUserProfiles() {
   const handleDelete = async (loginId: string) => {
     try {
       await client.deleteUser(loginId);
-      setUsers((prevUsers) => prevUsers.filter((user) => user.loginId !== loginId));
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.loginId !== loginId)
+      );
     } catch (error) {
       console.error("Failed to delete user:", error);
     }
@@ -106,7 +115,10 @@ export default function AllUserProfiles() {
           <Col key={user._id} sm={12} md={6} lg={4} className="mb-4">
             <Card
               style={{
-                border: currentUser && currentUser._id === user._id ? "2px solid gold" : "",
+                border:
+                  currentUser && currentUser._id === user._id
+                    ? "2px solid gold"
+                    : "",
               }}
             >
               <Card.Body>
@@ -143,35 +155,37 @@ export default function AllUserProfiles() {
                     <p>
                       <strong>Role:</strong> {user.role}
                     </p>
-                    {currentUser?.role === "USER" && currentUser._id !== user._id && (
-                      <div className="d-flex justify-content-between">
-                        {user.followers.includes(currentUser.loginId) ? (
+                    {currentUser?.role === "USER" &&
+                      currentUser._id !== user._id && (
+                        <div className="d-flex justify-content-between">
+                          {user.followers.includes(currentUser._id) ? (
+                            <Button
+                              variant="danger"
+                              onClick={() => handleUnfollow(user._id)}
+                            >
+                              Unfollow
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="primary"
+                              onClick={() => handleFollow(user._id)}
+                            >
+                              Follow
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    {currentUser?.role === "ADMIN" &&
+                      currentUser._id !== user._id && (
+                        <div className="d-flex justify-content-between">
                           <Button
                             variant="danger"
-                            onClick={() => handleUnfollow(user._id)}
+                            onClick={() => handleDelete(user.loginId)}
                           >
-                            Unfollow
+                            Delete
                           </Button>
-                        ) : (
-                          <Button
-                            variant="primary"
-                            onClick={() => handleFollow(user._id)}
-                          >
-                            Follow
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                    {currentUser?.role === "ADMIN" && currentUser._id !== user._id && (
-                      <div className="d-flex justify-content-between">
-                        <Button
-                          variant="danger"
-                          onClick={() => handleDelete(user.loginId)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    )}
+                        </div>
+                      )}
                   </Col>
                 </Row>
               </Card.Body>

@@ -23,7 +23,7 @@ const Login: React.FC = () => {
       dispatch(setCurrentUser(currentUser));
       navigate("/profile");
     } catch (err: any) {
-      setError(err.response.data.message);
+      // setError(err.response.data.message);
     }
   };
 
