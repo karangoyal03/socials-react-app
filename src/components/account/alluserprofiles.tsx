@@ -4,8 +4,6 @@ import {
   Row,
   Col,
   Card,
-  Spinner,
-  Alert,
   Button,
 } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
@@ -14,12 +12,15 @@ import * as client from "./client";
 
 interface User {
   id: number;
+  _id: string;
   username: string;
   firstName: string;
   lastName: string;
   email: string;
   role: string;
   userPic?: string;
+  loginId: string;
+  followers: string[]; // Array of loginIds who follow this user
 }
 
 export default function AllUserProfiles() {
@@ -40,49 +41,96 @@ export default function AllUserProfiles() {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
 
-  const handleFollow = (userId: number) => {
-    // Add logic to follow the user
-    console.log(`Follow user with ID: ${userId}`);
+  const handleFollow = async (_id: string) => {
+    if (!currentUser || !currentUser.loginId) {
+      console.error("Current user is not available.");
+      return;
+    }
+
+    try {
+      await client.followUser(currentUser._id, _id);
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === _id
+            ? { ...user, followers: [...user.followers, currentUser.loginId] }
+            : user
+        )
+      );
+    } catch (error) {
+      console.error("Failed to follow user:", error);
+    }
   };
 
-  const handleUnfollow = (userId: number) => {
-    // Add logic to unfollow the user
-    console.log(`Unfollow user with ID: ${userId}`);
+  const handleUnfollow = async (_id: string) => {
+    if (!currentUser || !currentUser.loginId) {
+      console.error("Current user is not available.");
+      return;
+    }
+
+    try {
+      await client.unfollowUser(currentUser._id, _id);
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === _id
+            ? {
+                ...user,
+                followers: user.followers.filter(
+                  (followerId) => followerId !== currentUser.loginId
+                ),
+              }
+            : user
+        )
+      );
+    } catch (error) {
+      console.error("Failed to unfollow user:", error);
+    }
   };
 
-  if (loading) {
-    return (
-      <Container className="mt-5 text-center">
-        <Spinner animation="border" />
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container className="mt-5">
-        <Alert variant="danger">{error}</Alert>
-      </Container>
-    );
-  }
+  const handleDelete = async (loginId: string) => {
+    try {
+      await client.deleteUser(loginId);
+      setUsers((prevUsers) => prevUsers.filter((user) => user.loginId !== loginId));
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    }
+  };
 
   return (
     <Container className="mt-5">
+      <h2 className="mb-4 text-center">Explore and Connect with Users</h2>
       <Row>
         {users.map((user) => (
-          <Col key={user.id} sm={12} md={6} lg={4} className="mb-4">
-            <Card>
+          <Col key={user._id} sm={12} md={6} lg={4} className="mb-4">
+            <Card
+              style={{
+                border: currentUser && currentUser._id === user._id ? "2px solid gold" : "",
+              }}
+            >
               <Card.Body>
                 <Row className="align-items-center">
                   <Col md={4} className="text-center">
                     <FaUserCircle size={80} color="gray" />
                   </Col>
                   <Col md={8}>
-                    <h5>{user.username}</h5>
+                    <h5>
+                      {user.username}{" "}
+                      {currentUser && currentUser._id === user._id && (
+                        <span
+                          style={{
+                            backgroundColor: "gold",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            fontSize: "0.8rem",
+                            color: "black",
+                          }}
+                        >
+                          You
+                        </span>
+                      )}
+                    </h5>
                     <p>
                       <strong>First Name:</strong> {user.firstName}
                     </p>
@@ -95,19 +143,32 @@ export default function AllUserProfiles() {
                     <p>
                       <strong>Role:</strong> {user.role}
                     </p>
-                    {currentUser?.role === "USER" && (
+                    {currentUser?.role === "USER" && currentUser._id !== user._id && (
+                      <div className="d-flex justify-content-between">
+                        {user.followers.includes(currentUser.loginId) ? (
+                          <Button
+                            variant="danger"
+                            onClick={() => handleUnfollow(user._id)}
+                          >
+                            Unfollow
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="primary"
+                            onClick={() => handleFollow(user._id)}
+                          >
+                            Follow
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    {currentUser?.role === "ADMIN" && currentUser._id !== user._id && (
                       <div className="d-flex justify-content-between">
                         <Button
-                          variant="primary"
-                          onClick={() => handleFollow(user.id)}
-                        >
-                          Follow
-                        </Button>
-                        <Button
                           variant="danger"
-                          onClick={() => handleUnfollow(user.id)}
+                          onClick={() => handleDelete(user.loginId)}
                         >
-                          Unfollow
+                          Delete
                         </Button>
                       </div>
                     )}

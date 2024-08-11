@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Container,
   Card,
@@ -13,8 +13,10 @@ import {
 } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import * as client from "./client";
+import { setCurrentUser } from "./reducer";
 
 export default function Profile() {
+  const dispatch = useDispatch();
   const account = useSelector((state: any) => state.account);
   const currentUser = account ? account.currentUser : null;
   const [reviews, setReviews] = useState<any[]>([]);
@@ -66,9 +68,15 @@ export default function Profile() {
   const handleSaveChanges = async () => {
     try {
       await client.updateUser(currentUser.loginId, updatedUser);
+      // Update the Redux state with the new user information
+      const updatedCurrentUser = {
+        ...currentUser,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+      };
+      dispatch(setCurrentUser(updatedCurrentUser)); // Use setCurrentUser action
       handleCloseModal();
-      // Optionally, refresh the profile data after the update
-      window.location.reload();
     } catch (error) {
       console.error("Failed to update user:", error);
     }
@@ -78,6 +86,7 @@ export default function Profile() {
     <Container className="mt-5">
       {currentUser ? (
         <>
+          {/* Profile Information */}
           <Card className="mb-4">
             <Card.Header as="h2">Profile</Card.Header>
             <Card.Body>
@@ -107,6 +116,62 @@ export default function Profile() {
             </Card.Body>
           </Card>
 
+          {/* Followers and Following Section */}
+          <Card className="mb-4">
+            <Card.Header as="h3">Followers and Following</Card.Header>
+            <Card.Body>
+              <Row>
+                <Col md={6}>
+                  <h4>Followers</h4>
+                  {currentUser.followers.length > 0 ? (
+                    <Table striped bordered hover responsive>
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Username</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentUser.followers.map((follower: string, index: number) => (
+                          <tr key={index}>
+                            <td>{index + 1}</td>
+                            <td>{follower}</td> {/* Assuming follower is a username */}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <Alert variant="info">No followers yet.</Alert>
+                  )}
+                </Col>
+                <Col md={6}>
+                  <h4>Following</h4>
+                  {currentUser.following.length > 0 ? (
+                    <Table striped bordered hover responsive>
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Username</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentUser.following.map((followedUser: string, index: number) => (
+                          <tr key={index}>
+                            <td>{index + 1}</td>
+                            <td>{followedUser}</td> {/* Assuming followedUser is a username */}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <Alert variant="info">Not following anyone yet.</Alert>
+                  )}
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+
+          {/* Reviews Section */}
           {reviews.length > 0 ? (
             <Card>
               <Card.Header as="h3">My Reviews</Card.Header>
