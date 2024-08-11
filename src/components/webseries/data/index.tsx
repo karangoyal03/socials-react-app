@@ -48,7 +48,7 @@ interface Review {
 }
 
 const WebSeries: React.FC = () => {
-  const { user: currentUser } = useContext(UserContext); // Use UserContext to get the current user
+  const { user: currentUser } = useContext(UserContext);
   const [shows, setShows] = useState<TvShow[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedShow, setSelectedShow] = useState<TvShow | null>(null);
@@ -83,11 +83,9 @@ const WebSeries: React.FC = () => {
   };
 
   const handleReview = (show: TvShow) => {
-    if (currentUser === null) {
+    if (!currentUser) {
       navigate("/login");
-      return;
-    }
-    if (canPostReview) {
+    } else if (canPostReview) {
       setSelectedShow(show);
       setShowModal(true);
     }

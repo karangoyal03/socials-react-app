@@ -3,11 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { Offcanvas, Nav, Navbar, Container, Button } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "./../account/reducer";
+import * as client from "./../account/client"
 export default function Navigation() {
   const navigate = useNavigate();
   const currentUser = useSelector((state: any) => state.account?.currentUser);
   const dispatch = useDispatch();
-  const handleSignOut = () => {
+  const handleSignOut = async() => {
+    await client.signout();
     navigate("/");
     dispatch(setCurrentUser(null));
   };

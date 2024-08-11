@@ -27,7 +27,7 @@ export default function AllUserProfiles() {
     throw new Error("UserContext must be used within a UserProvider");
   }
 
-  const { user: currentUser } = context; // Now TypeScript knows 'user' exists on context
+  const { user: currentUser , fetchUser } = context; // Now TypeScript knows 'user' exists on context
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +57,7 @@ export default function AllUserProfiles() {
     try {
       await client.followUser(currentUser._id, _id);
       await fetchUsers();
+      await fetchUser();
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === _id
@@ -79,6 +80,8 @@ export default function AllUserProfiles() {
     try {
       await client.unfollowUser(currentUser._id, _id);
       await fetchUsers();
+      await fetchUser();
+
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === _id

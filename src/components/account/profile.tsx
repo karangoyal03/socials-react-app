@@ -15,7 +15,7 @@ import * as client from "./client";
 import { UserContext } from "./../context/userContext"; // Import UserContext
 
 export default function Profile() {
-  const { user: currentUser, setUser } = useContext(UserContext); // Use UserContext
+  const { user: currentUser, setUser , fetchUser } = useContext(UserContext); // Use UserContext
   const [reviews, setReviews] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({
@@ -23,6 +23,10 @@ export default function Profile() {
     lastName: "",
     email: "",
   });
+
+  useEffect(() => {
+    fetchUser();
+  } , [])
 
   useEffect(() => {
     if (currentUser) {
