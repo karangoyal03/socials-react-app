@@ -63,6 +63,7 @@ const WebSeries: React.FC = () => {
   const account = useSelector((state: any) => state.account);
   const currentUser = account ? account.currentUser : null;
 
+
   const canPostReview =
     currentUser &&
     (currentUser.role === "USER" || currentUser.role === "ADMIN");
@@ -85,6 +86,9 @@ const WebSeries: React.FC = () => {
   };
 
   const handleReview = (show: TvShow) => {
+    if(currentUser ===null){
+      navigate("/login")
+    }
     if (canPostReview) {
       setSelectedShow(show);
       setShowModal(true);
@@ -221,7 +225,6 @@ const WebSeries: React.FC = () => {
                     variant="primary"
                     className="w-100 mb-2"
                     onClick={() => handleReview(show)}
-                    disabled={!canPostReview}
                   >
                     Post Review
                   </Button>

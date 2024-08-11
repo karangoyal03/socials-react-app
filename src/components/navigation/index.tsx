@@ -1,9 +1,16 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Offcanvas, Nav, Navbar, Container, Button } from "react-bootstrap";
-
+import { useSelector, useDispatch } from "react-redux";
+import { setCurrentUser } from "./../account/reducer";
 export default function Navigation() {
   const navigate = useNavigate();
+  const currentUser = useSelector((state: any) => state.account?.currentUser);
+  const dispatch = useDispatch();
+  const handleSignOut = () => {
+    navigate("/");
+    dispatch(setCurrentUser(null));
+  };
 
   return (
     <div className="wd-account-screen">
@@ -47,7 +54,7 @@ export default function Navigation() {
                   <Button
                     variant="link"
                     className="nav-link"
-                    onClick={() => navigate("/")}
+                    onClick={() => handleSignOut()}
                   >
                     Sign Out
                   </Button>
