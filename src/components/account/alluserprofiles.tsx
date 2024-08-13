@@ -13,7 +13,7 @@ interface User {
   role: string;
   userPic?: string;
   loginId: string;
-  followers: string[]; // Array of loginIds who follow this user
+  followers: string[]; 
 }
 
 interface UserContextType {
@@ -27,7 +27,7 @@ export default function AllUserProfiles() {
     throw new Error("UserContext must be used within a UserProvider");
   }
 
-  const { user: currentUser , fetchUser } = context; // Now TypeScript knows 'user' exists on context
+  const { user: currentUser , fetchUser } = context;
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

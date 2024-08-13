@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import * as client from "./client";
@@ -17,8 +17,8 @@ const SignUp: React.FC = () => {
   const dispatch = useDispatch();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     try {
-      event.preventDefault();
       const user = {
         firstName,
         lastName,
@@ -27,23 +27,26 @@ const SignUp: React.FC = () => {
         role,
         password,
       };
-      console.log(role +"hi")
       const currentUser = await client.signup(user);
       dispatch(setCurrentUser(currentUser));
       navigate("/login");
     } catch (error: any) {
-      setError(error.message);
+      setError("Something went wrong. Please try again later.");
     }
   };
 
   return (
     <>
-      {error && <div className="wd-error alert alert-danger">{error}</div>}
       <Container className="vh-100">
         <Row className="h-100 justify-content-center align-items-center">
           <Col xs={12} md={8} lg={6}>
             <Form onSubmit={handleSubmit} className="p-4 border rounded shadow">
               <h3 className="text-center mb-4">Sign Up</h3>
+              {error && (
+                <Alert variant="danger" onClose={() => setError("")} dismissible>
+                  {error}
+                </Alert>
+              )}
               <Form.Group className="mb-3" controlId="formFirstName">
                 <Form.Label>First name</Form.Label>
                 <Form.Control

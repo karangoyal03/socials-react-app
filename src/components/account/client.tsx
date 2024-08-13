@@ -2,11 +2,17 @@ import axios from "axios";
 export const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
 export const USER_API = `${REMOTE_SERVER}/api/users`;
 export const REVIEW_API = `${REMOTE_SERVER}/api/reviews`;
+export const USERBYOBJECT_API = `${REMOTE_SERVER}/api/user`
 
 export const getAllUsers = async () => {
   const response = await axios.get(`${USER_API}`);
   return response.data;
 };
+
+export const findUserById = async(_id : String)=>{
+  const response = await axios.get(`${USERBYOBJECT_API}/${_id}`)
+  return response.data;
+}
 
 export const signin = async (credentials: any) => {
   const response = await axios.post(`${USER_API}/login`, credentials);

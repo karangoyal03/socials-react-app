@@ -1,20 +1,21 @@
 import React, { useState, FormEvent } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import Navigation from "../navigation";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "./reducer";
 import * as client from "./client";
+
 const Login: React.FC = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleSubmit = async (event :any) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     try {
-      event.preventDefault();
       const credentials = {
         username,
         password,
@@ -23,18 +24,26 @@ const Login: React.FC = () => {
       dispatch(setCurrentUser(currentUser));
       navigate("/profile");
     } catch (err: any) {
-      // setError(err.response.data.message);
+      setError("Either username or password is incorrect. Please try again.");
     }
   };
 
   return (
     <>
       <Container className="vh-100">
-        {error && <div className="wd-error alert alert-danger">{error}</div>}
         <Row className="h-100 justify-content-center align-items-center">
           <Col xs={12} md={8} lg={6}>
             <Form onSubmit={handleSubmit} className="p-4 border rounded shadow">
               <h3 className="text-center mb-4">Sign In</h3>
+              {error && (
+                <Alert
+                  variant="danger"
+                  onClose={() => setError("")}
+                  dismissible
+                >
+                  {error}
+                </Alert>
+              )}
               <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>Username</Form.Label>
                 <Form.Control
@@ -59,9 +68,8 @@ const Login: React.FC = () => {
                 </Button>
               </div>
               <div>
-                {" "}
                 <p className="forgot-password text-right">
-                  create new account <Link to="/signup">sign up?</Link>
+                  Create new account <Link to="/signup">Sign up?</Link>
                 </p>
               </div>
             </Form>

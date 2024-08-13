@@ -118,7 +118,6 @@ const WebSeries: React.FC = () => {
   };
 
   const axiosWithCredentials = axios.create({ withCredentials: false });
- 
 
   const handleSearch = async () => {
     try {
@@ -204,42 +203,54 @@ const WebSeries: React.FC = () => {
       {searchError && <Alert variant="danger">{searchError}</Alert>}
 
       <Row>
-        {shows.map((show) => (
-          <Col key={show.id} sm={12} md={6} lg={4} className="mb-4">
-            <Card className="h-100 shadow-sm">
-              <div className="image-container">
-                <Card.Img variant="top" src={show.Poster} className="card-img" />
-              </div>
-              <Card.Body className="d-flex flex-column">
-                <Card.Title className="text-center">{show.name}</Card.Title>
-                <Card.Text className="text-muted">
-                  {show.Plot
-                    ? show.Plot.length > 100
-                      ? `${show.Plot.substring(0, 100)}...`
-                      : show.Plot
-                    : "Plot not available"}
-                </Card.Text>
-
-                <div className="mt-auto d-flex flex-column">
-                  <Button
-                    variant="primary"
-                    className="w-100 mb-2"
-                    onClick={() => handleReview(show)}
-                  >
-                    Post Review
-                  </Button>
-                  <Button
-                    variant="outline-primary"
-                    className="w-100"
-                    onClick={() => handleDetailsClick(show)}
-                  >
-                    More Details
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
+        {shows.length === 0 ? (
+          <Col>
+            <Alert variant="warning" className="text-center">
+              No movies found.
+            </Alert>
           </Col>
-        ))}
+        ) : (
+          shows.map((show) => (
+            <Col key={show.id} sm={12} md={6} lg={4} className="mb-4">
+              <Card className="h-100 shadow-sm">
+                <div className="image-container">
+                  <Card.Img
+                    variant="top"
+                    src={show.Poster}
+                    className="card-img"
+                  />
+                </div>
+                <Card.Body className="d-flex flex-column">
+                  <Card.Title className="text-center">{show.name}</Card.Title>
+                  <Card.Text className="text-muted">
+                    {show.Plot
+                      ? show.Plot.length > 100
+                        ? `${show.Plot.substring(0, 100)}...`
+                        : show.Plot
+                      : "Plot not available"}
+                  </Card.Text>
+
+                  <div className="mt-auto d-flex flex-column">
+                    <Button
+                      variant="primary"
+                      className="w-100 mb-2"
+                      onClick={() => handleReview(show)}
+                    >
+                      Post Review
+                    </Button>
+                    <Button
+                      variant="outline-primary"
+                      className="w-100"
+                      onClick={() => handleDetailsClick(show)}
+                    >
+                      More Details
+                    </Button>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
+        )}
       </Row>
 
       {/* Review Modal */}
@@ -416,7 +427,10 @@ const WebSeries: React.FC = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="createShowForm.totalSeasons" className="mt-3">
+            <Form.Group
+              controlId="createShowForm.totalSeasons"
+              className="mt-3"
+            >
               <Form.Label>Total Seasons</Form.Label>
               <Form.Control
                 type="text"
@@ -428,10 +442,7 @@ const WebSeries: React.FC = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowCreateModal(false)}
-          >
+          <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
             Close
           </Button>
           <Button variant="primary" onClick={handleCreateShow}>

@@ -12,10 +12,10 @@ import {
 } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import * as client from "./client";
-import { UserContext } from "./../context/userContext"; // Import UserContext
+import { UserContext } from "./../context/userContext";
 
 export default function Profile() {
-  const { user: currentUser, setUser , fetchUser } = useContext(UserContext); // Use UserContext
+  const { user: currentUser, setUser, fetchUser } = useContext(UserContext);
   const [reviews, setReviews] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({
@@ -26,7 +26,7 @@ export default function Profile() {
 
   useEffect(() => {
     fetchUser();
-  } , [])
+  }, []);
 
   useEffect(() => {
     if (currentUser) {
@@ -35,12 +35,8 @@ export default function Profile() {
         lastName: currentUser.lastName,
         email: currentUser.email,
       });
-    }
-  }, [currentUser]);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      if (currentUser) {
+      const fetchReviews = async () => {
         try {
           const userReviews = await client.findReviewsByUserId(
             currentUser.loginId
@@ -49,10 +45,10 @@ export default function Profile() {
         } catch (error) {
           console.error("Failed to fetch reviews:", error);
         }
-      }
-    };
+      };
 
-    fetchReviews();
+      fetchReviews();
+    }
   }, [currentUser]);
 
   const handleShowModal = () => {
@@ -132,16 +128,20 @@ export default function Profile() {
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Username</th>
+                          <th>First Name</th>
+                          <th>Last Name</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {currentUser.followers.map((follower: string, index: number) => (
-                          <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td>{follower}</td>
-                          </tr>
-                        ))}
+                        {currentUser.followers.map(
+                          (follower: any, index: number) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{follower.firstName}</td>
+                              <td>{follower.lastName}</td>
+                            </tr>
+                          )
+                        )}
                       </tbody>
                     </Table>
                   ) : (
@@ -155,16 +155,20 @@ export default function Profile() {
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Username</th>
+                          <th>First Name</th>
+                          <th>Last Name</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {currentUser.following.map((followedUser: string, index: number) => (
-                          <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td>{followedUser}</td>
-                          </tr>
-                        ))}
+                        {currentUser.following.map(
+                          (following: any, index: number) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{following.firstName}</td>
+                              <td>{following.lastName}</td>
+                            </tr>
+                          )
+                        )}
                       </tbody>
                     </Table>
                   ) : (
