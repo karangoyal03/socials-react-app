@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
-import { UserContext } from "./../context/userContext"; // Import UserContext with the correct type
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { UserContext } from "./../context/userContext";
 import * as client from "./client";
+
 interface User {
   id: number;
   _id: string;
@@ -13,7 +15,7 @@ interface User {
   role: string;
   userPic?: string;
   loginId: string;
-  followers: string[]; 
+  followers: string[];
 }
 
 interface UserContextType {
@@ -22,12 +24,13 @@ interface UserContextType {
 
 export default function AllUserProfiles() {
   const context = useContext(UserContext);
+  const navigate = useNavigate(); // Initialize navigate
 
   if (!context) {
     throw new Error("UserContext must be used within a UserProvider");
   }
 
-  const { user: currentUser , fetchUser } = context;
+  const { user: currentUser, fetchUser } = context;
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +47,6 @@ export default function AllUserProfiles() {
   };
 
   useEffect(() => {
- 
     fetchUsers();
   }, []);
 
@@ -75,7 +77,6 @@ export default function AllUserProfiles() {
       console.error("Current user is not available.");
       return;
     }
-
 
     try {
       await client.unfollowUser(currentUser._id, _id);
@@ -110,6 +111,10 @@ export default function AllUserProfiles() {
     }
   };
 
+  const handleCardClick = (user: User) => {
+    navigate("/userprofile", { state: { user } }); // Navigate to user profile with user data
+  };
+
   return (
     <Container className="mt-5">
       <h2 className="mb-4 text-center">Explore and Connect with Users</h2>
@@ -118,11 +123,13 @@ export default function AllUserProfiles() {
           <Col key={user._id} sm={12} md={6} lg={4} className="mb-4">
             <Card
               style={{
+                cursor: "pointer", // Add pointer cursor to indicate clickable card
                 border:
                   currentUser && currentUser._id === user._id
                     ? "2px solid gold"
                     : "",
               }}
+              onClick={() => handleCardClick(user)} // Handle card click
             >
               <Card.Body>
                 <Row className="align-items-center">
